@@ -1,0 +1,33 @@
+/* In this SQL code (PostgreSQL dialect) I am querying a database containing Netflix data to answer some questions about the titles. */
+
+
+SELECT people.director, people.cast, titles.type, titles.title, titles.release_year, titles.rating
+FROM "CharlotteChaze/BreakIntoTech"."netflix_people" people
+    LEFT JOIN "CharlotteChaze/BreakIntoTech"."netflix_titles_info" titles
+    ON people.show_id = titles.show_id;
+
+-- How many movie titles in the database?
+SELECT COUNT (*) FROM "CharlotteChaze/BreakIntoTech"."netflix_titles_info"
+    WHERE type = 'Movie';
+
+-- When was the most recent batch of tv shows and/or movies added to the database?
+SELECT MAX(DATE(date_added)) FROM "CharlotteChaze/BreakIntoTech"."netflix_titles_info";
+
+-- List all movies and tv shows in alphabetical order.
+SELECT title FROM "CharlotteChaze/BreakIntoTech"."netflix_titles_info"
+    ORDER BY "title" ASC;
+
+-- Who was the Director for the movie Bright Star?
+SELECT people.director
+FROM "CharlotteChaze/BreakIntoTech"."netflix_people" people
+LEFT JOIN "CharlotteChaze/BreakIntoTech"."netflix_titles_info" titles
+    ON people.show_id = titles.show_id
+    WHERE titles.title = 'Bright Star';
+
+-- What is the oldest movie in the database and what year was it made?
+SELECT title, release_year
+FROM "CharlotteChaze/BreakIntoTech"."netflix_titles_info"
+    WHERE type = 'Movie'
+    ORDER BY release_year ASC
+    LIMIT 2;
+/* There were two movie titles that were both released in the year 1942. */
