@@ -1,3 +1,6 @@
+/* In this SQL code I queried data from a database that contained customer and sales data for an electronics retailer.
+I was able answer specific questions regarding the transactions from the months of January and February using the available data. */
+
 SELECT * FROM BIT_DB.customers LIMIT 20;
 
 SELECT * FROM BIT_DB.JanSales LIMIT 20;
