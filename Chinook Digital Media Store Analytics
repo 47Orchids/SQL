@@ -1,0 +1,111 @@
+/* For this project I queried data from a chinook dataset. The data includes information on customers, employees and different types of digital media that have been sold there.
+With my knowledge of SQL, I was able to answer several questions regarding sales from this digital media store. */
+
+
+-- Show Customers (their full names, customer ID, and country) who are not in the US. 
+SELECT customerID, firstName, lastName, country 
+FROM chinook.customers
+    WHERE country <> 'USA';
+
+
+-- Show only the Customers from Brazil.
+SELECT * FROM chinook.customers
+    WHERE country = 'Brazil';
+
+
+-- Find the Invoices of customers who are from Brazil. The resulting table should show the customer's full name, Invoice ID, Date of the invoice, and billing country.
+SELECT c.firstName, c.lastName, i.billingCountry, i.invoiceID, i.invoiceDate
+FROM chinook.invoices i
+    LEFT JOIN chinook.customers c 
+    ON c.customerID = i.customerID
+        WHERE billingCountry = 'Brazil';
+
+
+-- Show the Employees who are Sales Agents.
+SELECT * FROM chinook.employees
+    WHERE title like '%Agent%';
+
+
+-- Find a unique/distinct list of billing countries from the Invoice table.
+SELECT distinct billingCountry FROM chinook.invoices;
+
+
+-- Provide a query that shows the invoices associated with each sales agent. The resulting table should include the Sales Agent's full name.
+SELECT i.invoiceID, e.firstName, e.lastName
+FROM chinook.employees e
+    JOIN chinook.customers c
+    ON c.supportRepID = e.employeeID
+        JOIN chinook.invoices i
+        ON i.customerID = c.customerID;
+
+
+-- Show the Invoice, Invoice Total, Customer name, Country, and Sales Agent name for all invoices and customers.
+SELECT i.invoiceID, c.firstName, c.lastName, c.country, e.firstName AS agent_first, e.lastName AS agent_last, i.total
+FROM chinook.invoices i
+    JOIN chinook.customers c
+    ON c.customerID = i.customerID
+        JOIN chinook.employees e
+        ON e.employeeID = c.supportRepID;
+
+
+-- How many Invoices were there in 2009?
+SELECT COUNT(*) FROM chinook.invoices
+    WHERE invoiceDate like '2009%';
+
+
+-- What are the total sales for 2009?
+SELECT ROUND(SUM(total), 2) FROM chinook.invoices
+    WHERE invoiceDate like '2009%';
+
+
+-- Write a query that includes the purchased track name with each invoice line item.
+SELECT i.invoiceLineID, t.name AS track_name
+FROM chinook.tracks t
+    JOIN chinook.invoice_items i
+    ON i.trackID = t.trackID;
+
+
+-- Write a query that includes the purchased track name AND artist name with each invoice line item.
+SELECT i.invoiceLineID, t.name AS track_name, a.name AS artist_name
+FROM chinook.tracks t
+    JOIN chinook.invoice_items i
+    ON i.trackID = t.trackID
+        JOIN chinook.albums al
+        ON al.albumID = t.albumID
+            JOIN chinook.artists a
+            ON a.artistID = al.artistID;
+
+
+-- Provide a query that shows all the Tracks, and include the Album name, Media type, and Genre.
+SELECT t.name AS track_name, al.title AS album, m.name AS media_type, g.name AS genre
+FROM chinook.tracks t
+    JOIN chinook.albums al
+    ON al.albumID = t.albumID
+        JOIN chinook.media_types m
+        ON m.mediaTypeID = t.mediaTypeID
+            JOIN chinook.genres g
+            ON g.genreID = t.genreID;
+
+
+-- Show the total sales made by each sales agent.
+SELECT e.firstName, e.lastName, ROUND(SUM(TOTAL), 2) AS total_sales
+FROM chinook.employees e
+    JOIN chinook.customers c
+    ON c.supportRepID = e.employeeID
+        JOIN chinook.invoices i
+        ON i.customerID = c.customerID
+            GROUP BY employeeID;
+
+
+-- Which sales agent made the most in sales in 2009?
+SELECT e.firstName, e.lastName, ROUND(SUM(i.total), 2) AS total_sales
+FROM chinook.employees e
+    JOIN chinook.customers c
+    ON c.supportRepID = e.employeeID
+        JOIN chinook.invoices i
+        ON i.customerID = c.customerID
+            WHERE e.title like 'Sales Support Agent'
+            AND i.invoiceDate like '2009%'
+                GROUP BY e.employeeID
+                ORDER BY ROUND(SUM(i.total), 2) DESC
+                    LIMIT 1;
